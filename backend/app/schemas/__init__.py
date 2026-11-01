@@ -1,0 +1,53 @@
+"""Pydantic schemas package for Vulnex AI."""
+
+from app.schemas.ai import (
+    AIAnalysisResult,
+    AIExecutionMetadata,
+    AIFindingAnalysis,
+    AIPatchProposal,
+    AIPatchResult,
+    ChangeItem,
+)
+from app.schemas.v1 import (
+    CodeDiff,
+    ErrorResponse,
+    Finding,
+    FindingEvidence,
+    PaginatedScanHistory,
+    RemediationRequest,
+    RemediationResponse,
+    RepositoryScanRequest,
+    ScanRequest,
+    ScanResponse,
+    ScanSummary,
+    SeverityLevel,
+    SourceCodeScanRequest,
+    TaskStatus,
+    ValidationRequest,
+    ValidationResult,
+)
+
+__all__ = [
+    "AIAnalysisResult",
+    "AIExecutionMetadata",
+    "AIFindingAnalysis",
+    "AIPatchProposal",
+    "AIPatchResult",
+    "ChangeItem",
+    "CodeDiff",
+    "ErrorResponse",
+    "Finding",
+    "FindingEvidence",
+    "PaginatedScanHistory",
+    "RemediationRequest",
+    "RemediationResponse",
+    "RepositoryScanRequest",
+    "ScanRequest",
+    "ScanResponse",
+    "ScanSummary",
+    "SeverityLevel",
+    "SourceCodeScanRequest",
+    "TaskStatus",
+    "ValidationRequest",
+    "ValidationResult",
+]

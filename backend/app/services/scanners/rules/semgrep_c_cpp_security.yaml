@@ -1,0 +1,159 @@
+# VULNEX AI — Semgrep C/C++ & Embedded IoT Security Rule Pack
+# Documented Rule Set: Memory Safety, Format Strings, Command Injection,
+# Cryptography, Hardcoded Secrets, and IoT/Firmware Vulnerabilities
+
+rules:
+  # ============================================================================
+  # 1. MEMORY SAFETY: Unsafe String & Buffer Operations
+  # ============================================================================
+  - id: c.security.memory.strcpy-buffer-overflow
+    patterns:
+      - pattern-either:
+          - pattern: strcpy($DEST, $SRC)
+          - pattern: strcat($DEST, $SRC)
+    message: "Use of strcpy/strcat without bounds checking allows buffer overflows (CWE-120/CWE-121)."
+    metadata:
+      cwe: "CWE-120"
+      category: "Memory Safety"
+      cvss: 8.8
+      impact: "Arbitrary code execution or stack corruption via buffer overflow."
+      recommendation: "Replace with bounded functions: strncpy, strlcpy, or snprintf with explicit destination size."
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: c.security.memory.gets-stack-overflow
+    patterns:
+      - pattern: gets($BUFFER)
+    message: "gets() function does not perform bounds checking and is inherently vulnerable to stack buffer overflows (CWE-120)."
+    metadata:
+      cwe: "CWE-120"
+      category: "Memory Safety"
+      cvss: 9.8
+      impact: "Uncontrolled memory overwrite leading to full system compromise."
+      recommendation: "Replace with fgets($BUFFER, sizeof($BUFFER), stdin)."
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: c.security.memory.sprintf-buffer-overflow
+    patterns:
+      - pattern: sprintf($DEST, $FORMAT, ...)
+    message: "sprintf() does not check destination buffer boundaries (CWE-120/CWE-121)."
+    metadata:
+      cwe: "CWE-120"
+      category: "Memory Safety"
+      cvss: 8.5
+      impact: "Buffer overflow when formatted string exceeds allocated buffer size."
+      recommendation: "Use snprintf($DEST, sizeof($DEST), $FORMAT, ...)."
+    severity: ERROR
+    languages: [c, cpp]
+
+  # ============================================================================
+  # 2. INPUT & EXECUTION SECURITY: Format Strings & Command Injection
+  # ============================================================================
+  - id: c.security.format-string.printf-non-literal
+    patterns:
+      - pattern-either:
+          - pattern: printf($VAR);
+          - pattern: sprintf($DEST, $VAR);
+          - pattern: snprintf($DEST, $SIZE, $VAR);
+          - pattern: fprintf($STREAM, $VAR);
+          - pattern: syslog($PRIORITY, $VAR);
+    message: "Format function invoked with variable as format string allows arbitrary memory read/write (CWE-134)."
+    metadata:
+      cwe: "CWE-134"
+      category: "Format String"
+      cvss: 8.6
+      impact: "Adversaries can read memory contents or write arbitrary values to arbitrary addresses."
+      recommendation: "Always supply an explicit string literal format: printf(\"%s\", $VAR);"
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: c.security.injection.command-system
+    patterns:
+      - pattern-either:
+          - pattern: system(...)
+          - pattern: popen(...)
+          - pattern: _popen(...)
+    message: "Execution of command through shell with system/popen allows command injection (CWE-78)."
+    metadata:
+      cwe: "CWE-78"
+      category: "Command Injection"
+      cvss: 9.8
+      impact: "Arbitrary command execution in the context of the running process."
+      recommendation: "Use execve/posix_spawn with explicit, validated arguments without invoking a shell."
+    severity: ERROR
+    languages: [c, cpp]
+
+  # ============================================================================
+  # 3. CRYPTOGRAPHIC & SECRETS
+  # ============================================================================
+  - id: c.security.crypto.insecure-prng-rand
+    patterns:
+      - pattern-either:
+          - pattern: rand()
+          - pattern: srand(...)
+    message: "rand() is a pseudo-random number generator unsuitable for security tokens, session keys, or IVs (CWE-338)."
+    metadata:
+      cwe: "CWE-338"
+      category: "Insecure Cryptography"
+      cvss: 6.5
+      impact: "Predictable sequences allow attackers to guess tokens, nonce, or encryption keys."
+      recommendation: "Use a cryptographic hardware TRNG (e.g., esp_fill_random, /dev/urandom, or mbedtls_ctr_drbg)."
+    severity: WARNING
+    languages: [c, cpp]
+
+  # ============================================================================
+  # 4. SECURE IOT & EMBEDDED FIRMWARE SECURITY
+  # ============================================================================
+  - id: iot.security.tls.arduino-set-insecure
+    patterns:
+      - pattern: $CLIENT.setInsecure()
+    message: "Calling setInsecure() disables TLS certificate validation in embedded firmware (CWE-295)."
+    metadata:
+      cwe: "CWE-295"
+      category: "IoT Firmware Communication"
+      cvss: 7.5
+      impact: "Man-In-The-Middle (MITM) attacks can intercept, decrypt, and tamper with IoT device telemetry."
+      recommendation: "Supply a valid Root CA certificate via client.setCACert(root_ca) and enforce validation."
+    severity: ERROR
+    languages: [cpp]
+
+  - id: iot.security.tls.mbedtls-ssl-verify-none
+    patterns:
+      - pattern: mbedtls_ssl_conf_authmode($CONF, MBEDTLS_SSL_VERIFY_NONE)
+    message: "MBEDTLS_SSL_VERIFY_NONE disables peer certificate authentication in mbedTLS (CWE-295)."
+    metadata:
+      cwe: "CWE-295"
+      category: "IoT Firmware Communication"
+      cvss: 7.5
+      impact: "Firmware communication vulnerable to TLS interception and credential theft."
+      recommendation: "Set MBEDTLS_SSL_VERIFY_REQUIRED and configure trusted CA anchors with mbedtls_ssl_conf_ca_chain."
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: iot.security.mqtt.insecure-plaintext-scheme
+    patterns:
+      - pattern-regex: "mqtt:\\/\\/|mqtt_broker_url\\s*=\\s*\"mqtt:\\/\\/"
+    message: "Insecure plaintext MQTT URI (mqtt://) transmits telemetry and control commands without TLS encryption (CWE-319)."
+    metadata:
+      cwe: "CWE-319"
+      category: "IoT Firmware Communication"
+      cvss: 7.5
+      impact: "Eavesdropping and unauthorized command injection over plaintext transport layer."
+      recommendation: "Use secure MQTT over TLS (mqtts://) on port 8883 with certificate verification."
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: iot.security.ota.unsigned-firmware-update
+    patterns:
+      - pattern-either:
+          - pattern: esp_ota_begin($PARTITION, OTA_SIZE_UNKNOWN, $HANDLE)
+    message: "OTA update initialized without image signature verification or explicit size checks (CWE-494)."
+    metadata:
+      cwe: "CWE-494"
+      category: "IoT Firmware Update"
+      cvss: 8.6
+      impact: "Malicious firmware payload can be flashed onto the microcontroller, resulting in permanent device takeover."
+      recommendation: "Enable ESP-IDF secure boot, enforce cryptographic signature validation, and configure anti-rollback."
+    severity: ERROR
+    languages: [c, cpp]

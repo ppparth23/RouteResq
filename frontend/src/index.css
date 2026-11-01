@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #070E1B;
+    --bg-secondary: #0A162B;
+    --bg-elevated: #0F203D;
+    --glass-bg: rgba(14, 28, 54, 0.68);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-blur: 24px;
+
+    --text-primary: #FFFFFF;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    --color-azure: #38BDF8;
+    --color-cobalt: #2563EB;
+    --color-royal: #1D4ED8;
+
+    --status-success: #34D399;
+    --status-warning: #FBBF24;
+    --status-critical: #F87171;
+  }
+
+  body {
+    background-color: #070E1B;
+    color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.012em;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+}
+
+/* Reference image oceanic midnight atmosphere with cobalt spotlight */
+.bg-ambient-grid {
+  background-color: #070E1B;
+  background-image: 
+    radial-gradient(circle at 74% 22%, rgba(37, 99, 235, 0.32) 0%, rgba(56, 189, 248, 0.16) 30%, transparent 62%),
+    radial-gradient(circle at 18% 75%, rgba(30, 58, 138, 0.25) 0%, transparent 50%),
+    linear-gradient(to bottom, #070E1B 0%, #091325 50%, #060B15 100%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+}
+
+/* Sapphire Glassmorphic Surfaces from Reference */
+.glass-panel {
+  background: rgba(14, 28, 54, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 16px 40px -8px rgba(3, 7, 18, 0.65),
+    0 0 25px -5px rgba(37, 99, 235, 0.15);
+}
+
+.glass-panel-subtle {
+  background: rgba(11, 22, 44, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 24px -4px rgba(2, 6, 17, 0.45);
+}
+
+.glass-card-interactive {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.22s ease;
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-2.5px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 20px 48px -10px rgba(3, 7, 18, 0.75),
+    0 0 28px -2px rgba(56, 189, 248, 0.2);
+}
+
+/* Reference Image Clean White Pill Buttons */
+.btn-primary-pill {
+  background-color: #FFFFFF;
+  color: #0B1528;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.22), 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary-pill:hover {
+  background-color: #F1F5F9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(255, 255, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary-pill:active {
+  transform: scale(0.98);
+}
+
+/* Vibrant Royal Azure Secondary Button */
+.btn-secondary-azure {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary-azure:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Restrained Button & Control Press Transitions */
+.btn-press {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.15s ease,
+              background-color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Sleek oceanic scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(7, 14, 27, 0.7);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.45);
+}

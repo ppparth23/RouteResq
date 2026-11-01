@@ -1,0 +1,6 @@
+{
+  "name": "VULNEX AI",
+  "description": "AI-powered vulnerability detection and secure code repair platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

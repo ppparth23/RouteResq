@@ -1,0 +1,91 @@
+# VULNEX AI — Semgrep Python Security Rule Pack
+# Documented Rule Set: Python Injection, Deserialization, Crypto, Secrets, and Evaluation
+
+rules:
+  - id: python.security.injection.sql.formatted-query
+    patterns:
+      - pattern-either:
+          - pattern: $CURSOR.execute(f"...", ...)
+          - pattern: $CURSOR.execute("..." % (...), ...)
+          - pattern: $CURSOR.execute("...".format(...), ...)
+    message: "Potential SQL injection through string formatting in SQL query execution."
+    metadata:
+      cwe: "CWE-89"
+      category: "SQL Injection"
+      recommendation: "Use parameterized queries or ORM abstractions."
+    severity: ERROR
+    languages: [python]
+
+  - id: python.security.injection.command.os-system
+    patterns:
+      - pattern: os.system(...)
+    message: "Direct shell execution with os.system is vulnerable to command injection."
+    metadata:
+      cwe: "CWE-78"
+      category: "Command Injection"
+      recommendation: "Use subprocess.run with shell=False and argument lists."
+    severity: ERROR
+    languages: [python]
+
+  - id: python.security.injection.command.subprocess-shell
+    patterns:
+      - pattern: subprocess.$FUNC(..., shell=True, ...)
+    message: "Subprocess execution with shell=True allows shell injection."
+    metadata:
+      cwe: "CWE-78"
+      category: "Command Injection"
+      recommendation: "Pass arguments as a list and disable shell execution (shell=False)."
+    severity: ERROR
+    languages: [python]
+
+  - id: python.security.deserialization.pickle
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads(...)
+          - pattern: pickle.load(...)
+          - pattern: _pickle.loads(...)
+          - pattern: _pickle.load(...)
+    message: "Pickle deserialization of untrusted input allows arbitrary code execution."
+    metadata:
+      cwe: "CWE-502"
+      category: "Insecure Deserialization"
+      recommendation: "Use safe serialization formats such as JSON or Protocol Buffers."
+    severity: ERROR
+    languages: [python]
+
+  - id: python.security.deserialization.yaml-unsafe
+    patterns:
+      - pattern: yaml.load($DATA)
+    message: "yaml.load without safe loader can deserialize arbitrary Python objects."
+    metadata:
+      cwe: "CWE-502"
+      category: "Insecure Deserialization"
+      recommendation: "Use yaml.safe_load() instead."
+    severity: WARNING
+    languages: [python]
+
+  - id: python.security.crypto.weak-hash
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.md5(...)
+          - pattern: hashlib.sha1(...)
+    message: "Use of weak cryptographic hash function (MD5/SHA1)."
+    metadata:
+      cwe: "CWE-327"
+      category: "Cryptography"
+      recommendation: "Use cryptographically secure hashes like SHA-256 or SHA-3."
+    severity: WARNING
+    languages: [python]
+
+  - id: python.security.dynamic-code.eval-exec
+    patterns:
+      - pattern-either:
+          - pattern: eval(...)
+          - pattern: exec(...)
+    message: "Dynamic code evaluation using eval/exec allows arbitrary code execution."
+    metadata:
+      cwe: "CWE-95"
+      category: "Dynamic Code Evaluation"
+      recommendation: "Avoid eval/exec; use ast.literal_eval for structured data."
+    severity: ERROR
+    languages: [python]
